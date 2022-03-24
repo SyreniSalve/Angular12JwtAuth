@@ -1,0 +1,36 @@
+Overview of Angular 12 Form Validation example
+
+We will implement validation for a Angular Form using Reactive Forms Module and Bootstrap. The form has:
+
+    Full Name: required
+    Username: required, from 6 to 20 characters
+    Email: required, email format
+    Password: required, from 6 to 40 characters
+    Confirm Password: required, same as Password
+    Accept Terms Checkbox: required
+
+First we need to add the ReactiveFormsModule into our App Module.
+
+Open src/app/app.module.ts and import ReactiveFormsModule from @angular/forms
+
+Import Bootstrap 4
+
+Open src/index.html and add following line to <head> tag
+
+Form Validation with Angular 12 Reactive Forms
+
+The app component contains Form Validation example built with the @angular/forms version 12.
+
+Open app/app.component.ts, we’re gonna import necessary library first
+
+We use Angular FormBuilder to create a FormGroup object (form property) which is then bound to the template <form> element (using the [formGroup] directive later).
+
+Validators provides a set of built-in validators (required, minLength, maxLength…) that can be used by form controls.
+
+A validator is a function that processes a FormControl or collection of controls and returns an error map or null (meaning validation has passed).
+
+Validation is our custom class that provides custom validator function. I will explain it later.
+
+We also have getter f to access form controls (form.controls) from the template. For example, we can get username field in the template using f.username instead of form.controls.username.
+
+The submitted property helps us to check whether the form is submitted or not.

@@ -1,0 +1,65 @@
+– A refreshToken will be provided at the time user signs in.
+– A legal JWT must be added to HTTP Header if Angular 12 Client accesses protected resources.
+– With the help of Http Interceptor, Angular App can check if the accessToken (JWT) is expired (401), sends /refreshToken request to receive new accessToken and use it for new resource request.
+
+Let’s see how the Angular Refresh Token example works with demo UI.
+
+– User signs in with a legal account first.
+
+angular-12-refresh-token-jwt-interceptor-login
+
+Add Refresh Token function in Angular Service
+
+Firstly, we need to create refreshToken() function that uses HttpClient to send HTTP Request with refreshToken in the body.
+
+_services/auth.service.ts
+
+We also need to update token-storage.service.ts which provides get, set, remove methods to work with Access Token, Refresh Token and User Data stored on Browser.
+
+_services/token.service.ts
+
+Angular 12 Refresh Token with Interceptor
+
+To implement refresh token, we need to follow 2 steps:
+
+    save the Refresh Token right after making login request (which returns Access Token and Refresh Token).
+    use Angular HttpInterceptor to check 401 status in the response and call AuthService.refreshToken() with saved Refresh Token above.
+
+Save Refresh Token after Login
+
+In LoginComponent, we update onSubmit() functiob with new TokenStorageService‘s saveRefreshToken() method.
+
+login/login.component.ts
+
+Angular Http Interceptor with 401 status for Refresh Token
+
+We’re gonna silent refresh JWT Token using Angular HttpInterceptor when receiving response with status code 401.
+
+_helpers/auth.interceptor.ts
+
+In the code above, we:
+– intercept requests or responses before they are handled by intercept() method.
+– handle 401 status on interceptor response (except response of /login request)
+– use refreshTokenSubject to track the current refresh token value. It is null if no token is currently available.
+For example, when the refresh progress is processing (isRefreshing = true), we will wait until refreshTokenSubject
+has a non-null value (new Access Token is ready and we can retry the request again).
+
+How to handle Token expiration in Angular 12
+
+We will dispatch logout event to App component when response status tells us the access token is expired and refresh token too.
+
+First we need to set up a global event-driven system, or a PubSub system, which allows us to listen and dispatch (emit) events from independent components so that they don’t have direct dependencies between each other.
+
+We’re gonna create EventBusService with three methods: on, and emit.
+
+_shared/event-bus.service.ts
+
+Now you can emit event to the bus and if any listener was registered with the eventName, it will execute the callback function action.
+
+Next we import EventBusService in App component and listen to "logout" event.
+
+src/app.component.ts
+
+Finally we only need to emit "logout" event in the components when getting Unauthorized response status (403).
+
+components/board-user.component.ts

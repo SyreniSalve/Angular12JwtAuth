@@ -1,0 +1,90 @@
+ng new Angular12JwtAuth
+? Would you like to add Angular routing? Yes
+? Which stylesheet format would you like to use? CSS
+
+We also need to generate some Components and Services:
+
+ng g s _services/auth
+ng g s _services/token-storage
+ng g s _services/user
+ng g c login
+ng g c register
+ng g c home
+ng g c profile
+ng g c board-admin
+ng g c board-moderator
+ng g c board-user
+
+After the previous process is done, under src folder, let’s create _helpers folder and auth.interceptor.ts file inside.
+
+
+Setup App Module
+
+Open app.module.ts, then import FormsModule & HttpClientModule.
+We also need to add authInterceptorProviders in providers. I will show you how to define it later on this tutorial
+(in auth.interceptor.ts).
+
+Create Services
+Authentication Service
+
+This service sends signup, login HTTP POST requests to back-end.
+
+Token Storage Service
+
+TokenStorageService to manages token and user information (username, email, roles) inside Browser’s Session Storage.
+For Logout, we only need to clear this Session Storage. _services/token-storage.service.ts
+
+Data Service
+
+This service provides methods to access public and protected resources. _services/user.service.ts
+You can see that it’s simple because we have HttpInterceptor.
+
+intercept() gets HTTPRequest object, change it and forward to HttpHandler object’s handle() method.
+It transforms HTTPRequest object into an Observable<HttpEvents>.
+
+next: HttpHandler object represents the next interceptor in the chain of interceptors.
+The final ‘next’ in the chain is the Angular HttpClient.
+
+Create Components for Authentication
+Register Component
+This component binds form data (username, email, password) from template to
+AuthService.register() method that returns an Observable object.
+register/register.component.ts
+
+Profile Component
+
+This Component gets current User from Storage using TokenStorageService and show information (username, token, email, roles).
+
+profile/profile.component.ts
+
+Our Home Component will use UserService to get public resources from back-end.
+
+home/home.component.ts
+
+Protected Components
+
+These Components are role-based. But authorization will be processed by back-end.
+We only need to call UserService methods:
+
+    getUserBoard()
+    getModeratorBoard()
+    getAdminBoard()
+
+Here is an example for BoardAdminComponent.
+BoardModeratorComponent & BoardUserComponent are similar.
+
+board-admin/board-admin.component.ts
+
+App Routing Module
+
+We configure the Routing for our Angular app in app-routing.module.ts.
+
+App Component
+
+This component is the root Component of our Angular application, it defines the root tag: <app-root></app-root>
+that we use in index.html.
+
+First, we check isLoggedIn status using TokenStorageService, if it is true, we get user’s roles and set value for
+showAdminBoard & showModeratorBoard flag. They will control how template navbar displays its items.
+
+The App Component template also has a Logout button link that call logout() method and reload the window.
